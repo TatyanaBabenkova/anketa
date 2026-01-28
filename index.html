@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Анкета пассажира поезда «В Карелию»</title>
+    <title>Анкета / Survey / 调查问卷</title>
     <style>
         :root {
             --rzd-red: #E21A1A;
@@ -24,9 +24,33 @@
             max-width: 900px;
             background: #fff;
             margin: 20px auto;
-            padding: 30px; /* Увеличил отступы */
+            padding: 30px;
             border-radius: 8px;
             box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            position: relative;
+        }
+
+        /* Переключатель языков */
+        .lang-switch {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            gap: 10px;
+        }
+        .lang-btn {
+            border: 1px solid #ccc;
+            background: white;
+            padding: 5px 10px;
+            cursor: pointer;
+            border-radius: 4px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        .lang-btn.active {
+            background: var(--rzd-red);
+            color: white;
+            border-color: var(--rzd-red);
         }
 
         /* Заголовок */
@@ -35,6 +59,7 @@
             border-bottom: 3px solid var(--rzd-red);
             padding-bottom: 20px;
             margin-bottom: 30px;
+            padding-top: 30px; /* место под кнопки языка */
         }
         
         h1 {
@@ -92,6 +117,14 @@
             resize: vertical;
             height: 100px;
         }
+        
+        /* Поле "Другое" */
+        .other-input {
+            margin-top: 5px;
+            margin-left: 25px; /* отступ, чтобы быть под текстом */
+            width: calc(100% - 30px);
+            display: block;
+        }
 
         /* Группы радиокнопок и чекбоксов */
         .option-group {
@@ -103,11 +136,14 @@
             align-items: center;
             margin-bottom: 8px;
             cursor: pointer;
+            flex-wrap: wrap; /* чтобы input "другое" переносился красиво */
         }
-        .option-group input {
+        .option-group input[type="radio"], 
+        .option-group input[type="checkbox"] {
             margin-right: 12px;
             width: 20px;
             height: 20px;
+            flex-shrink: 0;
         }
 
         /* Таблицы-матрицы (оценки 1-5) */
@@ -157,15 +193,10 @@
                 border: none;
                 border-bottom: 1px solid #eee;
             }
-            /* Превращаем радио в ряд для мобильных */
-            .mobile-radio-row {
-                display: flex;
-                justify-content: space-between;
-                padding: 10px 0;
-            }
-            .mobile-radio-row label {
-                font-weight: normal;
-                text-align: center;
+            /* Кнопка "Другое" на мобильном */
+            .other-input {
+                 margin-left: 0;
+                 width: 100%;
             }
         }
 
@@ -211,10 +242,16 @@
 <body>
 
 <div class="container">
+    <div class="lang-switch">
+        <button class="lang-btn active" onclick="changeLanguage('ru')">RU</button>
+        <button class="lang-btn" onclick="changeLanguage('en')">EN</button>
+        <button class="lang-btn" onclick="changeLanguage('zh')">中文</button>
+    </div>
+
     <header>
-        <h1>Федеральная пассажирская компания / РЖД ТУР</h1>
-        <p class="intro-text">
-            Уважаемый пассажир! Благодарим Вас за выбор круизного туристского поезда «В Карелию» № 944 Москва – Петрозаводск – Сортавала – Выборг – Москва!<br>
+        <h1 data-i18n="title">Федеральная пассажирская компания / РЖД ТУР</h1>
+        <p class="intro-text" data-i18n="intro">
+            Уважаемый пассажир! Благодарим Вас за выбор круизного туристского поезда «В Карелию»!
             Просим Вас поделиться впечатлениями от поездки.
         </p>
     </header>
@@ -224,485 +261,140 @@
         <input type="hidden" name="train_id" id="train_id" value="">
 
         <div class="section">
-            <h3>Данные о поездке</h3>
+            <h3 data-i18n="section_trip">Данные о поездке</h3>
             
-            <label>В каком типе вагона Вы совершаете поездку?</label>
+            <label data-i18n="wagon_type_label">В каком типе вагона Вы совершаете поездку?</label>
             <div class="option-group">
-                <label><input type="radio" name="wagon_type" value="Купе"> Купе</label>
-                <label><input type="radio" name="wagon_type" value="СВ"> СВ</label>
+                <label><input type="radio" name="wagon_type" value="Купе" id="wt_coupe"> <span data-i18n="type_coupe">Купе</span></label>
+                <label><input type="radio" name="wagon_type" value="СВ" id="wt_sv"> <span data-i18n="type_sv">СВ</span></label>
             </div>
 
             <div style="display: flex; gap: 20px; flex-wrap: wrap;">
                 <div style="flex: 1; min-width: 200px;">
-                    <label for="wagon_num">Номер вагона</label>
-                    <input type="text" id="wagon_num" name="wagon_num" placeholder="Например: 05">
+                    <label for="wagon_num" data-i18n="wagon_num_label">Номер вагона</label>
+                    <input type="text" id="wagon_num" name="wagon_num" placeholder="Например: 05" data-i18n-placeholder="placeholder_num">
                 </div>
                 <div style="flex: 1; min-width: 200px;">
-                    <label for="place_num">Номер места</label>
-                    <input type="text" id="place_num" name="place_num" placeholder="Например: 12">
+                    <label for="place_num" data-i18n="place_num_label">Номер места</label>
+                    <input type="text" id="place_num" name="place_num" placeholder="Например: 12" data-i18n-placeholder="placeholder_num">
                 </div>
             </div>
         </div>
 
         <div class="section">
-            <h3>Организация путешествия</h3>
+            <h3 data-i18n="section_marketing">Организация путешествия</h3>
 
-            <label>Откуда Вы узнали о нашем туристском поезде?</label>
+            <label data-i18n="source_label">Откуда Вы узнали о нашем туристском поезде?</label>
             <div class="option-group">
-                <label><input type="radio" name="source" value="Сайт РЖД"> Сайт ОАО «РЖД»</label>
-                <label><input type="radio" name="source" value="Сайт РЖД Тур"> Сайт «РЖД Тур»</label>
-                <label><input type="radio" name="source" value="СМИ"> Средства массовой информации</label>
-                <label><input type="radio" name="source" value="Соцсети"> Социальные сети</label>
-                <label><input type="radio" name="source" value="Email"> Email рассылка</label>
-                <label><input type="radio" name="source" value="Друзья"> От друзей, знакомых</label>
-                <label><input type="radio" name="source" value="Другое"> Другое</label>
-                <input type="text" name="source_other" placeholder="Укажите, если другое...">
+                <label><input type="radio" name="source" value="Сайт РЖД"> <span data-i18n="src_rzd">Сайт ОАО «РЖД»</span></label>
+                <label><input type="radio" name="source" value="Сайт РЖД Тур"> <span data-i18n="src_rzdtur">Сайт «РЖД Тур»</span></label>
+                <label><input type="radio" name="source" value="СМИ"> <span data-i18n="src_media">СМИ</span></label>
+                <label><input type="radio" name="source" value="Соцсети"> <span data-i18n="src_social">Социальные сети</span></label>
+                <label><input type="radio" name="source" value="Email"> <span data-i18n="src_email">Email рассылка</span></label>
+                <label><input type="radio" name="source" value="Друзья"> <span data-i18n="src_friends">От друзей</span></label>
+                <label>
+                    <input type="radio" name="source" value="Другое"> <span data-i18n="src_other">Другое:</span>
+                    <input type="text" class="other-input" name="source_other" placeholder="Укажите, если другое..." data-i18n-placeholder="placeholder_other">
+                </label>
             </div>
 
-            <label>Как организовано Ваше путешествие?</label>
+            <label data-i18n="org_label">Как организовано Ваше путешествие?</label>
             <div class="option-group">
-                <label><input type="radio" name="org_type" value="Комплексный тур"> Купил комплексный тур (с экскурсиями и питанием)</label>
-                <label><input type="radio" name="org_type" value="Билеты + Экскурсии в поезде"> Купил билеты + экскурсии у проводника</label>
-                <label><input type="radio" name="org_type" value="Билеты + Экскурсии на месте"> Купил билеты + экскурсии самостоятельно в городах</label>
-                <label><input type="radio" name="org_type" value="Только билеты"> Купил только билеты на поезд</label>
+                <label><input type="radio" name="org_type" value="Комплексный тур"> <span data-i18n="org_complex">Комплексный тур (с экскурсиями и питанием)</span></label>
+                <label><input type="radio" name="org_type" value="Билеты + Экскурсии в поезде"> <span data-i18n="org_train_exc">Билеты + Экскурсии у проводника</span></label>
+                <label><input type="radio" name="org_type" value="Билеты + Экскурсии на месте"> <span data-i18n="org_self_exc">Билеты + Экскурсии в городах</span></label>
+                <label><input type="radio" name="org_type" value="Только билеты"> <span data-i18n="org_ticket_only">Только билеты</span></label>
             </div>
             
-            <label>Почему Вы выбрали такой вариант? (можно несколько)</label>
+            <label data-i18n="reason_label">Почему Вы выбрали такой вариант? (можно несколько)</label>
             <div class="option-group">
-                <label><input type="checkbox" name="reason" value="Бюджет"> Самый бюджетный вариант</label>
-                <label><input type="checkbox" name="reason" value="Самостоятельно"> Люблю самостоятельно организовывать</label>
-                <label><input type="checkbox" name="reason" value="Не знал про тур"> Не знал про комплексный тур</label>
-                <label><input type="checkbox" name="reason" value="Не знал про проводника"> Не знал, что можно купить у проводника</label>
-                <label><input type="checkbox" name="reason" value="Все включено"> Предпочитаю «все включено»</label>
-                <label><input type="checkbox" name="reason" value="Другое"> Другое</label>
+                <label><input type="checkbox" name="reason" value="Бюджет"> <span data-i18n="reason_budget">Самый бюджетный вариант</span></label>
+                <label><input type="checkbox" name="reason" value="Самостоятельно"> <span data-i18n="reason_self">Люблю самостоятельно организовывать</span></label>
+                <label><input type="checkbox" name="reason" value="Не знал про тур"> <span data-i18n="reason_no_info_tour">Не знал про комплексный тур</span></label>
+                <label><input type="checkbox" name="reason" value="Все включено"> <span data-i18n="reason_all_inc">Предпочитаю «все включено»</span></label>
+                <label>
+                    <input type="checkbox" name="reason" value="Другое"> <span data-i18n="reason_other">Другое:</span>
+                    <input type="text" class="other-input" name="reason_other" placeholder="Укажите причину..." data-i18n-placeholder="placeholder_write">
+                </label>
             </div>
         </div>
 
         <div class="section">
-            <h3>Программа в Петрозаводске</h3>
-            <p><i>Оцените по 5-балльной шкале (5 – отлично, 1 – очень плохо)</i></p>
+            <h3 data-i18n="section_ptz">Программа в Петрозаводске</h3>
+            <p><i data-i18n="rate_scale">Оцените по 5-балльной шкале (5 – отлично, 1 – очень плохо)</i></p>
             
             <table class="matrix-table">
-                <thead><tr><th>Услуга</th><th>5</th><th>4</th><th>3</th><th>2</th><th>1</th></tr></thead>
+                <thead><tr><th data-i18n="col_service">Услуга</th><th>5</th><th>4</th><th>3</th><th>2</th><th>1</th></tr></thead>
                 <tbody>
                     <tr>
-                        <td>Обзорная экскурсия по городу</td>
-                        <td><input type="radio" name="ptz_tour" value="5"></td>
-                        <td><input type="radio" name="ptz_tour" value="4"></td>
-                        <td><input type="radio" name="ptz_tour" value="3"></td>
-                        <td><input type="radio" name="ptz_tour" value="2"></td>
-                        <td><input type="radio" name="ptz_tour" value="1"></td>
+                        <td data-i18n="ptz_tour">Обзорная экскурсия</td>
+                        <td><input type="radio" name="ptz_tour" value="5"></td><td><input type="radio" name="ptz_tour" value="4"></td><td><input type="radio" name="ptz_tour" value="3"></td><td><input type="radio" name="ptz_tour" value="2"></td><td><input type="radio" name="ptz_tour" value="1"></td>
                     </tr>
                     <tr>
-                        <td>Национальный музей РК</td>
-                        <td><input type="radio" name="ptz_museum" value="5"></td>
-                        <td><input type="radio" name="ptz_museum" value="4"></td>
-                        <td><input type="radio" name="ptz_museum" value="3"></td>
-                        <td><input type="radio" name="ptz_museum" value="2"></td>
-                        <td><input type="radio" name="ptz_museum" value="1"></td>
+                        <td data-i18n="ptz_museum">Национальный музей</td>
+                        <td><input type="radio" name="ptz_museum" value="5"></td><td><input type="radio" name="ptz_museum" value="4"></td><td><input type="radio" name="ptz_museum" value="3"></td><td><input type="radio" name="ptz_museum" value="2"></td><td><input type="radio" name="ptz_museum" value="1"></td>
                     </tr>
                     <tr>
-                        <td>Дом Кантеле</td>
-                        <td><input type="radio" name="ptz_kantele" value="5"></td>
-                        <td><input type="radio" name="ptz_kantele" value="4"></td>
-                        <td><input type="radio" name="ptz_kantele" value="3"></td>
-                        <td><input type="radio" name="ptz_kantele" value="2"></td>
-                        <td><input type="radio" name="ptz_kantele" value="1"></td>
-                    </tr>
-                    <tr>
-                        <td>Обед</td>
-                        <td><input type="radio" name="ptz_lunch" value="5"></td>
-                        <td><input type="radio" name="ptz_lunch" value="4"></td>
-                        <td><input type="radio" name="ptz_lunch" value="3"></td>
-                        <td><input type="radio" name="ptz_lunch" value="2"></td>
-                        <td><input type="radio" name="ptz_lunch" value="1"></td>
-                    </tr>
-                    <tr>
-                        <td>Программа «Северная сага»</td>
-                        <td><input type="radio" name="ptz_saga" value="5"></td>
-                        <td><input type="radio" name="ptz_saga" value="4"></td>
-                        <td><input type="radio" name="ptz_saga" value="3"></td>
-                        <td><input type="radio" name="ptz_saga" value="2"></td>
-                        <td><input type="radio" name="ptz_saga" value="1"></td>
-                    </tr>
-                    <tr>
-                        <td>Вотчина Талвиукко</td>
-                        <td><input type="radio" name="ptz_talvi" value="5"></td>
-                        <td><input type="radio" name="ptz_talvi" value="4"></td>
-                        <td><input type="radio" name="ptz_talvi" value="3"></td>
-                        <td><input type="radio" name="ptz_talvi" value="2"></td>
-                        <td><input type="radio" name="ptz_talvi" value="1"></td>
-                    </tr>
-                    <tr>
-                        <td>Работа гида</td>
-                        <td><input type="radio" name="ptz_guide" value="5"></td>
-                        <td><input type="radio" name="ptz_guide" value="4"></td>
-                        <td><input type="radio" name="ptz_guide" value="3"></td>
-                        <td><input type="radio" name="ptz_guide" value="2"></td>
-                        <td><input type="radio" name="ptz_guide" value="1"></td>
-                    </tr>
-                    <tr>
-                        <td>Автобусный трансфер</td>
-                        <td><input type="radio" name="ptz_trans" value="5"></td>
-                        <td><input type="radio" name="ptz_trans" value="4"></td>
-                        <td><input type="radio" name="ptz_trans" value="3"></td>
-                        <td><input type="radio" name="ptz_trans" value="2"></td>
-                        <td><input type="radio" name="ptz_trans" value="1"></td>
+                        <td data-i18n="ptz_guide">Работа гида</td>
+                        <td><input type="radio" name="ptz_guide" value="5"></td><td><input type="radio" name="ptz_guide" value="4"></td><td><input type="radio" name="ptz_guide" value="3"></td><td><input type="radio" name="ptz_guide" value="2"></td><td><input type="radio" name="ptz_guide" value="1"></td>
                     </tr>
                 </tbody>
             </table>
-            <label>Ваши пожелания по Петрозаводску:</label>
-            <textarea name="ptz_feedback"></textarea>
+            <label data-i18n="ptz_feedback_label">Ваши пожелания по Петрозаводску:</label>
+            <textarea name="ptz_feedback" data-i18n-placeholder="placeholder_feedback" placeholder="Ваш комментарий..."></textarea>
         </div>
 
         <div class="section">
-            <h3>Программа в Сортавала и Рускеала</h3>
+            <h3 data-i18n="section_sort">Программа в Сортавала</h3>
             
             <table class="matrix-table">
-                <thead><tr><th>Услуга</th><th>5</th><th>4</th><th>3</th><th>2</th><th>1</th></tr></thead>
+                <thead><tr><th data-i18n="col_service">Услуга</th><th>5</th><th>4</th><th>3</th><th>2</th><th>1</th></tr></thead>
                 <tbody>
                     <tr>
-                        <td>Пешеходная экскурсия по г. Сортавала</td>
-                        <td><input type="radio" name="sort_city" value="5"></td>
-                        <td><input type="radio" name="sort_city" value="4"></td>
-                        <td><input type="radio" name="sort_city" value="3"></td>
-                        <td><input type="radio" name="sort_city" value="2"></td>
-                        <td><input type="radio" name="sort_city" value="1"></td>
+                        <td data-i18n="sort_city">Пешеходная экскурсия</td>
+                        <td><input type="radio" name="sort_city" value="5"></td><td><input type="radio" name="sort_city" value="4"></td><td><input type="radio" name="sort_city" value="3"></td><td><input type="radio" name="sort_city" value="2"></td><td><input type="radio" name="sort_city" value="1"></td>
                     </tr>
                     <tr>
-                        <td>Горный парк Рускеала / Ретропоезд</td>
-                        <td><input type="radio" name="sort_ruskeala" value="5"></td>
-                        <td><input type="radio" name="sort_ruskeala" value="4"></td>
-                        <td><input type="radio" name="sort_ruskeala" value="3"></td>
-                        <td><input type="radio" name="sort_ruskeala" value="2"></td>
-                        <td><input type="radio" name="sort_ruskeala" value="1"></td>
-                    </tr>
-                    <tr>
-                        <td>Работа гида</td>
-                        <td><input type="radio" name="sort_guide" value="5"></td>
-                        <td><input type="radio" name="sort_guide" value="4"></td>
-                        <td><input type="radio" name="sort_guide" value="3"></td>
-                        <td><input type="radio" name="sort_guide" value="2"></td>
-                        <td><input type="radio" name="sort_guide" value="1"></td>
+                        <td data-i18n="sort_ruskeala">Горный парк Рускеала</td>
+                        <td><input type="radio" name="sort_ruskeala" value="5"></td><td><input type="radio" name="sort_ruskeala" value="4"></td><td><input type="radio" name="sort_ruskeala" value="3"></td><td><input type="radio" name="sort_ruskeala" value="2"></td><td><input type="radio" name="sort_ruskeala" value="1"></td>
                     </tr>
                 </tbody>
             </table>
-            <label>Ваши пожелания по Сортавала:</label>
-            <textarea name="sort_feedback"></textarea>
+            <label data-i18n="sort_feedback_label">Ваши пожелания по Сортавала:</label>
+            <textarea name="sort_feedback" data-i18n-placeholder="placeholder_feedback" placeholder="Ваш комментарий..."></textarea>
         </div>
 
         <div class="section">
-            <h3>Программа в Выборге</h3>
+            <h3 data-i18n="section_train">Оценка поездки в поезде</h3>
+            <table class="matrix-table">
+                <thead><tr><th data-i18n="col_criteria">Критерий</th><th>5</th><th>4</th><th>3</th><th>2</th><th>1</th></tr></thead>
+                <tbody>
+                    <tr>
+                        <td data-i18n="tr_comfort">Комфортность (общее)</td>
+                        <td><input type="radio" name="tr_comfort" value="5"></td><td><input type="radio" name="tr_comfort" value="4"></td><td><input type="radio" name="tr_comfort" value="3"></td><td><input type="radio" name="tr_comfort" value="2"></td><td><input type="radio" name="tr_comfort" value="1"></td>
+                    </tr>
+                    <tr>
+                        <td data-i18n="tr_staff">Работа проводника</td>
+                        <td><input type="radio" name="tr_staff" value="5"></td><td><input type="radio" name="tr_staff" value="4"></td><td><input type="radio" name="tr_staff" value="3"></td><td><input type="radio" name="tr_staff" value="2"></td><td><input type="radio" name="tr_staff" value="1"></td>
+                    </tr>
+                    <tr>
+                        <td data-i18n="tr_temp">Температурный режим</td>
+                        <td><input type="radio" name="tr_temp" value="5"></td><td><input type="radio" name="tr_temp" value="4"></td><td><input type="radio" name="tr_temp" value="3"></td><td><input type="radio" name="tr_temp" value="2"></td><td><input type="radio" name="tr_temp" value="1"></td>
+                    </tr>
+                    <tr>
+                        <td data-i18n="tr_wc">Чистота туалетов</td>
+                        <td><input type="radio" name="tr_wc" value="5"></td><td><input type="radio" name="tr_wc" value="4"></td><td><input type="radio" name="tr_wc" value="3"></td><td><input type="radio" name="tr_wc" value="2"></td><td><input type="radio" name="tr_wc" value="1"></td>
+                    </tr>
+                </tbody>
+            </table>
+            <label data-i18n="train_feedback_label">Пожелания по поезду:</label>
+            <textarea name="train_feedback" data-i18n-placeholder="placeholder_feedback"></textarea>
+        </div>
+
+        <div class="section">
+            <h3 data-i18n="section_overall">Оценка поездки в целом</h3>
             
-            <table class="matrix-table">
-                <thead><tr><th>Услуга</th><th>5</th><th>4</th><th>3</th><th>2</th><th>1</th></tr></thead>
-                <tbody>
-                    <tr>
-                        <td>Обзорная экскурсия (Замок)</td>
-                        <td><input type="radio" name="vyb_city" value="5"></td>
-                        <td><input type="radio" name="vyb_city" value="4"></td>
-                        <td><input type="radio" name="vyb_city" value="3"></td>
-                        <td><input type="radio" name="vyb_city" value="2"></td>
-                        <td><input type="radio" name="vyb_city" value="1"></td>
-                    </tr>
-                    <tr>
-                        <td>Ужин</td>
-                        <td><input type="radio" name="vyb_dinner" value="5"></td>
-                        <td><input type="radio" name="vyb_dinner" value="4"></td>
-                        <td><input type="radio" name="vyb_dinner" value="3"></td>
-                        <td><input type="radio" name="vyb_dinner" value="2"></td>
-                        <td><input type="radio" name="vyb_dinner" value="1"></td>
-                    </tr>
-                    <tr>
-                        <td>Работа гида</td>
-                        <td><input type="radio" name="vyb_guide" value="5"></td>
-                        <td><input type="radio" name="vyb_guide" value="4"></td>
-                        <td><input type="radio" name="vyb_guide" value="3"></td>
-                        <td><input type="radio" name="vyb_guide" value="2"></td>
-                        <td><input type="radio" name="vyb_guide" value="1"></td>
-                    </tr>
-                    <tr>
-                        <td>Автобусный трансфер</td>
-                        <td><input type="radio" name="vyb_trans" value="5"></td>
-                        <td><input type="radio" name="vyb_trans" value="4"></td>
-                        <td><input type="radio" name="vyb_trans" value="3"></td>
-                        <td><input type="radio" name="vyb_trans" value="2"></td>
-                        <td><input type="radio" name="vyb_trans" value="1"></td>
-                    </tr>
-                </tbody>
-            </table>
-            <label>Ваши пожелания по Выборгу:</label>
-            <textarea name="vyb_feedback"></textarea>
-        </div>
-
-        <div class="section">
-            <h3>Оценка поездки в поезде</h3>
-            <table class="matrix-table">
-                <thead><tr><th>Критерий</th><th>5</th><th>4</th><th>3</th><th>2</th><th>1</th></tr></thead>
-                <tbody>
-                    <tr>
-                        <td>Комфортность (общее впечатление)</td>
-                        <td><input type="radio" name="tr_comfort" value="5"></td>
-                        <td><input type="radio" name="tr_comfort" value="4"></td>
-                        <td><input type="radio" name="tr_comfort" value="3"></td>
-                        <td><input type="radio" name="tr_comfort" value="2"></td>
-                        <td><input type="radio" name="tr_comfort" value="1"></td>
-                    </tr>
-                    <tr>
-                        <td>Работа проводника (сервис)</td>
-                        <td><input type="radio" name="tr_staff" value="5"></td>
-                        <td><input type="radio" name="tr_staff" value="4"></td>
-                        <td><input type="radio" name="tr_staff" value="3"></td>
-                        <td><input type="radio" name="tr_staff" value="2"></td>
-                        <td><input type="radio" name="tr_staff" value="1"></td>
-                    </tr>
-                    <tr>
-                        <td>Температурный режим</td>
-                        <td><input type="radio" name="tr_temp" value="5"></td>
-                        <td><input type="radio" name="tr_temp" value="4"></td>
-                        <td><input type="radio" name="tr_temp" value="3"></td>
-                        <td><input type="radio" name="tr_temp" value="2"></td>
-                        <td><input type="radio" name="tr_temp" value="1"></td>
-                    </tr>
-                    <tr>
-                        <td>Наличие питьевой воды</td>
-                        <td><input type="radio" name="tr_water" value="5"></td>
-                        <td><input type="radio" name="tr_water" value="4"></td>
-                        <td><input type="radio" name="tr_water" value="3"></td>
-                        <td><input type="radio" name="tr_water" value="2"></td>
-                        <td><input type="radio" name="tr_water" value="1"></td>
-                    </tr>
-                    <tr>
-                        <td>Чистота туалетов</td>
-                        <td><input type="radio" name="tr_wc" value="5"></td>
-                        <td><input type="radio" name="tr_wc" value="4"></td>
-                        <td><input type="radio" name="tr_wc" value="3"></td>
-                        <td><input type="radio" name="tr_wc" value="2"></td>
-                        <td><input type="radio" name="tr_wc" value="1"></td>
-                    </tr>
-                    <tr>
-                        <td>ИРС «Попутчик»: Работоспособность</td>
-                        <td><input type="radio" name="tr_wifi_work" value="5"></td>
-                        <td><input type="radio" name="tr_wifi_work" value="4"></td>
-                        <td><input type="radio" name="tr_wifi_work" value="3"></td>
-                        <td><input type="radio" name="tr_wifi_work" value="2"></td>
-                        <td><input type="radio" name="tr_wifi_work" value="1"></td>
-                    </tr>
-                    <tr>
-                        <td>ИРС «Попутчик»: Контент</td>
-                        <td><input type="radio" name="tr_wifi_content" value="5"></td>
-                        <td><input type="radio" name="tr_wifi_content" value="4"></td>
-                        <td><input type="radio" name="tr_wifi_content" value="3"></td>
-                        <td><input type="radio" name="tr_wifi_content" value="2"></td>
-                        <td><input type="radio" name="tr_wifi_content" value="1"></td>
-                    </tr>
-                    <tr>
-                        <td>Стоимость проезда</td>
-                        <td><input type="radio" name="tr_price" value="5"></td>
-                        <td><input type="radio" name="tr_price" value="4"></td>
-                        <td><input type="radio" name="tr_price" value="3"></td>
-                        <td><input type="radio" name="tr_price" value="2"></td>
-                        <td><input type="radio" name="tr_price" value="1"></td>
-                    </tr>
-                    <tr>
-                        <td>Общая оценка поезда</td>
-                        <td><input type="radio" name="tr_overall" value="5"></td>
-                        <td><input type="radio" name="tr_overall" value="4"></td>
-                        <td><input type="radio" name="tr_overall" value="3"></td>
-                        <td><input type="radio" name="tr_overall" value="2"></td>
-                        <td><input type="radio" name="tr_overall" value="1"></td>
-                    </tr>
-                </tbody>
-            </table>
-            <label>Пожелания по улучшению комфорта:</label>
-            <textarea name="train_feedback"></textarea>
-        </div>
-
-        <div class="section">
-            <h3>Вагон-ресторан (если посещали)</h3>
-            <table class="matrix-table">
-                <thead><tr><th>Критерий</th><th>5</th><th>4</th><th>3</th><th>2</th><th>1</th></tr></thead>
-                <tbody>
-                    <tr>
-                        <td>Ассортимент блюд</td>
-                        <td><input type="radio" name="rest_assort" value="5"></td>
-                        <td><input type="radio" name="rest_assort" value="4"></td>
-                        <td><input type="radio" name="rest_assort" value="3"></td>
-                        <td><input type="radio" name="rest_assort" value="2"></td>
-                        <td><input type="radio" name="rest_assort" value="1"></td>
-                    </tr>
-                    <tr>
-                        <td>Вкусовые качества</td>
-                        <td><input type="radio" name="rest_taste" value="5"></td>
-                        <td><input type="radio" name="rest_taste" value="4"></td>
-                        <td><input type="radio" name="rest_taste" value="3"></td>
-                        <td><input type="radio" name="rest_taste" value="2"></td>
-                        <td><input type="radio" name="rest_taste" value="1"></td>
-                    </tr>
-                    <tr>
-                        <td>Подача блюда</td>
-                        <td><input type="radio" name="rest_visual" value="5"></td>
-                        <td><input type="radio" name="rest_visual" value="4"></td>
-                        <td><input type="radio" name="rest_visual" value="3"></td>
-                        <td><input type="radio" name="rest_visual" value="2"></td>
-                        <td><input type="radio" name="rest_visual" value="1"></td>
-                    </tr>
-                    <tr>
-                        <td>Работа официанта</td>
-                        <td><input type="radio" name="rest_staff" value="5"></td>
-                        <td><input type="radio" name="rest_staff" value="4"></td>
-                        <td><input type="radio" name="rest_staff" value="3"></td>
-                        <td><input type="radio" name="rest_staff" value="2"></td>
-                        <td><input type="radio" name="rest_staff" value="1"></td>
-                    </tr>
-                    <tr>
-                        <td>Время ожидания</td>
-                        <td><input type="radio" name="rest_wait" value="5"></td>
-                        <td><input type="radio" name="rest_wait" value="4"></td>
-                        <td><input type="radio" name="rest_wait" value="3"></td>
-                        <td><input type="radio" name="rest_wait" value="2"></td>
-                        <td><input type="radio" name="rest_wait" value="1"></td>
-                    </tr>
-                    <tr>
-                        <td>Стоимость</td>
-                        <td><input type="radio" name="rest_price" value="5"></td>
-                        <td><input type="radio" name="rest_price" value="4"></td>
-                        <td><input type="radio" name="rest_price" value="3"></td>
-                        <td><input type="radio" name="rest_price" value="2"></td>
-                        <td><input type="radio" name="rest_price" value="1"></td>
-                    </tr>
-                    <tr>
-                        <td>Общая оценка ресторана</td>
-                        <td><input type="radio" name="rest_overall" value="5"></td>
-                        <td><input type="radio" name="rest_overall" value="4"></td>
-                        <td><input type="radio" name="rest_overall" value="3"></td>
-                        <td><input type="radio" name="rest_overall" value="2"></td>
-                        <td><input type="radio" name="rest_overall" value="1"></td>
-                    </tr>
-                </tbody>
-            </table>
-            <label>Пожелания по вагону-ресторану:</label>
-            <textarea name="rest_feedback"></textarea>
-        </div>
-
-        <div class="section">
-            <h3>Предоплаченное питание в поезде</h3>
-            <table class="matrix-table">
-                <thead><tr><th>Критерий</th><th>5</th><th>4</th><th>3</th><th>2</th><th>1</th></tr></thead>
-                <tbody>
-                    <tr>
-                        <td>Ассортимент</td>
-                        <td><input type="radio" name="food_assort" value="5"></td>
-                        <td><input type="radio" name="food_assort" value="4"></td>
-                        <td><input type="radio" name="food_assort" value="3"></td>
-                        <td><input type="radio" name="food_assort" value="2"></td>
-                        <td><input type="radio" name="food_assort" value="1"></td>
-                    </tr>
-                    <tr>
-                        <td>Качество блюд</td>
-                        <td><input type="radio" name="food_quality" value="5"></td>
-                        <td><input type="radio" name="food_quality" value="4"></td>
-                        <td><input type="radio" name="food_quality" value="3"></td>
-                        <td><input type="radio" name="food_quality" value="2"></td>
-                        <td><input type="radio" name="food_quality" value="1"></td>
-                    </tr>
-                    <tr>
-                        <td>Вкусовые качества</td>
-                        <td><input type="radio" name="food_taste" value="5"></td>
-                        <td><input type="radio" name="food_taste" value="4"></td>
-                        <td><input type="radio" name="food_taste" value="3"></td>
-                        <td><input type="radio" name="food_taste" value="2"></td>
-                        <td><input type="radio" name="food_taste" value="1"></td>
-                    </tr>
-                    <tr>
-                        <td>Размер порций</td>
-                        <td><input type="radio" name="food_size" value="5"></td>
-                        <td><input type="radio" name="food_size" value="4"></td>
-                        <td><input type="radio" name="food_size" value="3"></td>
-                        <td><input type="radio" name="food_size" value="2"></td>
-                        <td><input type="radio" name="food_size" value="1"></td>
-                    </tr>
-                    <tr>
-                        <td>Общая оценка</td>
-                        <td><input type="radio" name="food_overall" value="5"></td>
-                        <td><input type="radio" name="food_overall" value="4"></td>
-                        <td><input type="radio" name="food_overall" value="3"></td>
-                        <td><input type="radio" name="food_overall" value="2"></td>
-                        <td><input type="radio" name="food_overall" value="1"></td>
-                    </tr>
-                </tbody>
-            </table>
-            <label>Пожелания по питанию:</label>
-            <textarea name="food_feedback"></textarea>
-        </div>
-
-        <div class="section">
-            <h3>Расписание поезда</h3>
-            <table class="matrix-table">
-                <thead><tr><th>Критерий</th><th>5</th><th>4</th><th>3</th><th>2</th><th>1</th></tr></thead>
-                <tbody>
-                    <tr>
-                        <td>Отправление из Москвы (время)</td>
-                        <td><input type="radio" name="sched_dep" value="5"></td>
-                        <td><input type="radio" name="sched_dep" value="4"></td>
-                        <td><input type="radio" name="sched_dep" value="3"></td>
-                        <td><input type="radio" name="sched_dep" value="2"></td>
-                        <td><input type="radio" name="sched_dep" value="1"></td>
-                    </tr>
-                    <tr>
-                        <td>Прибытие в Москву (время)</td>
-                        <td><input type="radio" name="sched_arr" value="5"></td>
-                        <td><input type="radio" name="sched_arr" value="4"></td>
-                        <td><input type="radio" name="sched_arr" value="3"></td>
-                        <td><input type="radio" name="sched_arr" value="2"></td>
-                        <td><input type="radio" name="sched_arr" value="1"></td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-
-        <div class="section">
-            <h3>Оценка поездки в целом</h3>
-            <table class="matrix-table">
-                <thead><tr><th>Критерий</th><th>5</th><th>4</th><th>3</th><th>2</th><th>1</th></tr></thead>
-                <tbody>
-                    <tr>
-                        <td>Удобство покупки тура</td>
-                        <td><input type="radio" name="trip_buy" value="5"></td>
-                        <td><input type="radio" name="trip_buy" value="4"></td>
-                        <td><input type="radio" name="trip_buy" value="3"></td>
-                        <td><input type="radio" name="trip_buy" value="2"></td>
-                        <td><input type="radio" name="trip_buy" value="1"></td>
-                    </tr>
-                    <tr>
-                        <td>Стоимость пакета</td>
-                        <td><input type="radio" name="trip_price" value="5"></td>
-                        <td><input type="radio" name="trip_price" value="4"></td>
-                        <td><input type="radio" name="trip_price" value="3"></td>
-                        <td><input type="radio" name="trip_price" value="2"></td>
-                        <td><input type="radio" name="trip_price" value="1"></td>
-                    </tr>
-                    <tr>
-                        <td>Работа сопровождающих РЖД Тур</td>
-                        <td><input type="radio" name="trip_rzdtur" value="5"></td>
-                        <td><input type="radio" name="trip_rzdtur" value="4"></td>
-                        <td><input type="radio" name="trip_rzdtur" value="3"></td>
-                        <td><input type="radio" name="trip_rzdtur" value="2"></td>
-                        <td><input type="radio" name="trip_rzdtur" value="1"></td>
-                    </tr>
-                    <tr>
-                        <td>Общая оценка поездки</td>
-                        <td><input type="radio" name="trip_overall" value="5"></td>
-                        <td><input type="radio" name="trip_overall" value="4"></td>
-                        <td><input type="radio" name="trip_overall" value="3"></td>
-                        <td><input type="radio" name="trip_overall" value="2"></td>
-                        <td><input type="radio" name="trip_overall" value="1"></td>
-                    </tr>
-                </tbody>
-            </table>
-
-            <br>
-            <label>Порекомендуете ли Вы подобное путешествие друзьям? (10 - точно да, 1 - точно нет)</label>
+            <label data-i18n="nps_label">Порекомендуете ли Вы подобное путешествие друзьям? (10 - Да, 1 - Нет)</label>
             <div class="nps-container">
                 <div class="nps-item"><label>1<input type="radio" name="nps" value="1"></label></div>
                 <div class="nps-item"><label>2<input type="radio" name="nps" value="2"></label></div>
@@ -717,85 +409,266 @@
             </div>
         </div>
 
-        <div class="section">
-            <h3>О Вас</h3>
-            <label>Пол</label>
-            <div class="option-group">
-                <label><input type="radio" name="gender" value="М"> Мужской</label>
-                <label><input type="radio" name="gender" value="Ж"> Женский</label>
-            </div>
-
-            <label>Возраст</label>
-            <select name="age">
-                <option value="">Выберите возраст...</option>
-                <option value="<18">До 18 лет</option>
-                <option value="19-24">19 – 24 года</option>
-                <option value="25-35">25-35 лет</option>
-                <option value="36-55">36-55 лет</option>
-                <option value="56+">56 и более лет</option>
-            </select>
-
-            <label>Социальный статус</label>
-            <select name="status">
-                <option value="">Выберите...</option>
-                <option value="Учащийся">Учащийся</option>
-                <option value="Рабочий">Рабочий</option>
-                <option value="Менеджер/Руководитель">Менеджер/Руководитель</option>
-                <option value="Военнослужащий">Военнослужащий</option>
-                <option value="Предприниматель">Частный предприниматель</option>
-                <option value="Безработный">Временно неработающий</option>
-                <option value="Работающий пенсионер">Работающий пенсионер</option>
-                <option value="Пенсионер">Пенсионер</option>
-                <option value="Служащий">Служащий</option>
-                <option value="Другое">Другое</option>
-            </select>
-
-            <label>Место жительства</label>
-            <input type="text" name="city">
-            
-            <label>Финальные пожелания:</label>
-            <textarea name="final_feedback"></textarea>
-        </div>
-
-        <button type="submit" class="submit-btn">Отправить анкету</button>
+        <button type="submit" class="submit-btn" data-i18n="btn_submit">Отправить анкету</button>
     </form>
 </div>
 
 <script>
-    // СКРИПТ АВТОЗАПОЛНЕНИЯ
+    // --- 1. СЛОВАРЬ ПЕРЕВОДОВ ---
+    const translations = {
+        ru: {
+            title: "Федеральная пассажирская компания / РЖД ТУР",
+            intro: "Уважаемый пассажир! Благодарим Вас за выбор круизного туристского поезда «В Карелию»! Просим Вас поделиться впечатлениями от поездки.",
+            section_trip: "Данные о поездке",
+            wagon_type_label: "В каком типе вагона Вы совершаете поездку?",
+            type_coupe: "Купе",
+            type_sv: "СВ",
+            wagon_num_label: "Номер вагона",
+            place_num_label: "Номер места",
+            placeholder_num: "Например: 05",
+            
+            section_marketing: "Организация путешествия",
+            source_label: "Откуда Вы узнали о нашем туристском поезде?",
+            src_rzd: "Сайт ОАО «РЖД»",
+            src_rzdtur: "Сайт «РЖД Тур»",
+            src_media: "СМИ",
+            src_social: "Социальные сети",
+            src_email: "Email рассылка",
+            src_friends: "От друзей",
+            src_other: "Другое:",
+            placeholder_other: "Укажите, если другое...",
+            
+            org_label: "Как организовано Ваше путешествие?",
+            org_complex: "Комплексный тур (с экскурсиями)",
+            org_train_exc: "Билеты + Экскурсии у проводника",
+            org_self_exc: "Билеты + Экскурсии в городах",
+            org_ticket_only: "Только билеты",
+            
+            reason_label: "Почему Вы выбрали такой вариант?",
+            reason_budget: "Самый бюджетный вариант",
+            reason_self: "Люблю самостоятельно организовывать",
+            reason_no_info_tour: "Не знал про комплексный тур",
+            reason_all_inc: "Предпочитаю «все включено»",
+            reason_other: "Другое:",
+            placeholder_write: "Напишите здесь...",
+            
+            section_ptz: "Программа в Петрозаводске",
+            section_sort: "Программа в Сортавала",
+            rate_scale: "Оцените по 5-балльной шкале (5 – отлично, 1 – очень плохо)",
+            col_service: "Услуга",
+            col_criteria: "Критерий",
+            
+            ptz_tour: "Обзорная экскурсия",
+            ptz_museum: "Национальный музей",
+            ptz_guide: "Работа гида",
+            ptz_feedback_label: "Ваши пожелания по Петрозаводску:",
+            
+            sort_city: "Пешеходная экскурсия",
+            sort_ruskeala: "Горный парк Рускеала",
+            sort_feedback_label: "Ваши пожелания по Сортавала:",
+            
+            section_train: "Оценка поездки в поезде",
+            tr_comfort: "Комфортность (общее)",
+            tr_staff: "Работа проводника",
+            tr_temp: "Температурный режим",
+            tr_wc: "Чистота туалетов",
+            train_feedback_label: "Пожелания по поезду:",
+            
+            section_overall: "Оценка поездки в целом",
+            nps_label: "Порекомендуете ли Вы подобное путешествие друзьям? (10 - Да, 1 - Нет)",
+            
+            placeholder_feedback: "Ваш комментарий...",
+            btn_submit: "Отправить анкету"
+        },
+        en: {
+            title: "Federal Passenger Company / RZD TOUR",
+            intro: "Dear passenger! Thank you for choosing the cruise tourist train 'To Karelia'! Please share your impressions of the trip.",
+            section_trip: "Trip Details",
+            wagon_type_label: "What type of wagon are you traveling in?",
+            type_coupe: "Coupe (Compartment)",
+            type_sv: "SV (Sleeping Car)",
+            wagon_num_label: "Wagon Number",
+            place_num_label: "Seat Number",
+            placeholder_num: "Ex: 05",
+            
+            section_marketing: "Trip Organization",
+            source_label: "Where did you hear about our tourist train?",
+            src_rzd: "RZD Website",
+            src_rzdtur: "RZD Tour Website",
+            src_media: "Media",
+            src_social: "Social Networks",
+            src_email: "Email Newsletter",
+            src_friends: "From Friends",
+            src_other: "Other:",
+            placeholder_other: "Please specify...",
+            
+            org_label: "How is your trip organized?",
+            org_complex: "Package Tour (inc. excursions)",
+            org_train_exc: "Tickets + Excursions bought on train",
+            org_self_exc: "Tickets + Excursions bought in cities",
+            org_ticket_only: "Train Tickets Only",
+            
+            reason_label: "Why did you choose this option?",
+            reason_budget: "Most budget-friendly option",
+            reason_self: "I like to organize myself",
+            reason_no_info_tour: "Didn't know about package tours",
+            reason_all_inc: "Prefer 'All Inclusive'",
+            reason_other: "Other:",
+            placeholder_write: "Write here...",
+            
+            section_ptz: "Program in Petrozavodsk",
+            section_sort: "Program in Sortavala",
+            rate_scale: "Rate on a 5-point scale (5 - Excellent, 1 - Very Bad)",
+            col_service: "Service",
+            col_criteria: "Criteria",
+            
+            ptz_tour: "City Sightseeing Tour",
+            ptz_museum: "National Museum",
+            ptz_guide: "Guide Work",
+            ptz_feedback_label: "Feedback on Petrozavodsk:",
+            
+            sort_city: "Walking Tour",
+            sort_ruskeala: "Ruskeala Mountain Park",
+            sort_feedback_label: "Feedback on Sortavala:",
+            
+            section_train: "Train Evaluation",
+            tr_comfort: "Comfort (Overall)",
+            tr_staff: "Conductor Service",
+            tr_temp: "Temperature",
+            tr_wc: "Toilet Cleanliness",
+            train_feedback_label: "Train Suggestions:",
+            
+            section_overall: "Overall Impression",
+            nps_label: "Would you recommend this trip to friends? (10 - Yes, 1 - No)",
+            
+            placeholder_feedback: "Your comment...",
+            btn_submit: "Submit Survey"
+        },
+        zh: {
+            title: "联邦客运公司 / 俄罗斯铁路旅游",
+            intro: "亲爱的乘客！ 感谢您选择“前往卡累利阿”游轮列车！ 请分享您的旅行印象。",
+            section_trip: "旅行详情",
+            wagon_type_label: "您乘坐的是哪种类型的车厢？",
+            type_coupe: "包厢 (Coupe)",
+            type_sv: "软卧 (SV)",
+            wagon_num_label: "车厢号",
+            place_num_label: "座位号",
+            placeholder_num: "例如: 05",
+            
+            section_marketing: "旅行组织",
+            source_label: "您是从哪里得知我们的旅游列车的？",
+            src_rzd: "俄铁官网",
+            src_rzdtur: "俄铁旅游官网",
+            src_media: "媒体",
+            src_social: "社交网络",
+            src_email: "电子邮件通讯",
+            src_friends: "来自朋友",
+            src_other: "其他:",
+            placeholder_other: "请注明...",
+            
+            org_label: "您的旅行是如何组织的？",
+            org_complex: "跟团游（含游览）",
+            org_train_exc: "车票 + 列车上购买的游览",
+            org_self_exc: "车票 + 城市中自购的游览",
+            org_ticket_only: "仅车票",
+            
+            reason_label: "您为什么选择此选项？",
+            reason_budget: "最经济的选择",
+            reason_self: "我喜欢自己组织",
+            reason_no_info_tour: "不知道有跟团游",
+            reason_all_inc: "更喜欢“全包”",
+            reason_other: "其他:",
+            placeholder_write: "写在这里...",
+            
+            section_ptz: "彼得罗扎沃茨克项目",
+            section_sort: "索尔塔瓦拉项目",
+            rate_scale: "请按5分制评分（5-优秀，1-非常差）",
+            col_service: "服务",
+            col_criteria: "标准",
+            
+            ptz_tour: "城市观光游",
+            ptz_museum: "国家博物馆",
+            ptz_guide: "导游工作",
+            ptz_feedback_label: "关于彼得罗扎沃茨克的建议：",
+            
+            sort_city: "徒步游览",
+            sort_ruskeala: "鲁斯克阿拉山地公园",
+            sort_feedback_label: "关于索尔塔瓦拉的建议：",
+            
+            section_train: "列车评价",
+            tr_comfort: "舒适度（总体）",
+            tr_staff: "列车员服务",
+            tr_temp: "温度",
+            tr_wc: "厕所清洁度",
+            train_feedback_label: "列车建议：",
+            
+            section_overall: "总体印象",
+            nps_label: "您会向朋友推荐这次旅行吗？ (10 - 是, 1 - 否)",
+            
+            placeholder_feedback: "您的评论...",
+            btn_submit: "提交问卷"
+        }
+    };
+
+    // --- 2. ФУНКЦИЯ СМЕНЫ ЯЗЫКА ---
+    function changeLanguage(lang) {
+        // Меняем активную кнопку
+        document.querySelectorAll('.lang-btn').forEach(btn => btn.classList.remove('active'));
+        // Находим кнопку с нужным onclick и делаем активной (простой способ)
+        const btns = document.querySelectorAll('.lang-btn');
+        if(lang === 'ru') btns[0].classList.add('active');
+        if(lang === 'en') btns[1].classList.add('active');
+        if(lang === 'zh') btns[2].classList.add('active');
+
+        const t = translations[lang];
+
+        // Обновляем тексты
+        document.querySelectorAll('[data-i18n]').forEach(el => {
+            const key = el.getAttribute('data-i18n');
+            if (t[key]) el.textContent = t[key];
+        });
+
+        // Обновляем плейсхолдеры
+        document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+            const key = el.getAttribute('data-i18n-placeholder');
+            if (t[key]) el.placeholder = t[key];
+        });
+    }
+
+    // --- 3. АВТОЗАПОЛНЕНИЕ ПРИ ЗАГРУЗКЕ ---
     window.addEventListener('DOMContentLoaded', () => {
-        // 1. Получаем параметры из адресной строки
+        // 1. Получаем параметры
         const params = new URLSearchParams(window.location.search);
         
-        // Читаем значения (поддерживаем разные названия параметров на всякий случай)
+        // Получаем значения
         const wagon = params.get('wagon') || params.get('wagon_num');
         const place = params.get('place') || params.get('place_num');
         const train = params.get('train') || params.get('train_id');
+        const type = params.get('type') || params.get('wagon_type'); // Например: &type=Coupe или &type=SV
 
-        // 2. Находим поля и заполняем их
-        if (wagon) {
-            const wagonInput = document.getElementById('wagon_num');
-            if (wagonInput) wagonInput.value = wagon;
-        }
+        // 2. Заполняем текстовые поля
+        if (wagon) document.getElementById('wagon_num').value = wagon;
+        if (place) document.getElementById('place_num').value = place;
+        if (train) document.getElementById('train_id').value = train;
 
-        if (place) {
-            const placeInput = document.getElementById('place_num');
-            if (placeInput) placeInput.value = place;
-        }
-
-        if (train) {
-            const trainInput = document.getElementById('train_id');
-            if (trainInput) trainInput.value = train;
+        // 3. Заполняем радиокнопки (Тип вагона)
+        if (type) {
+            const lowerType = type.toLowerCase();
+            // Проверяем, содержит ли параметр слово coupe или sv
+            if (lowerType.includes('coupe') || lowerType.includes('купе')) {
+                document.getElementById('wt_coupe').checked = true;
+            } else if (lowerType.includes('sv') || lowerType.includes('св')) {
+                document.getElementById('wt_sv').checked = true;
+            }
         }
     });
 
-    // СКРИПТ ОТПРАВКИ ФОРМЫ (ИМИТАЦИЯ)
+    // --- 4. ОТПРАВКА ФОРМЫ (ИМИТАЦИЯ) ---
     document.getElementById('kareliaSurvey').addEventListener('submit', function(e) {
         e.preventDefault();
         const formData = new FormData(this);
         const data = {};
         
-        // Собираем данные
         formData.forEach((value, key) => {
             if (data[key]) {
                 if (!Array.isArray(data[key])) {
@@ -809,9 +682,8 @@
         
         data['date_filled'] = new Date().toISOString();
 
-        // Выводим в консоль и показываем сообщение
         console.log("JSON DATA:", JSON.stringify(data, null, 2));
-        alert("Анкета успешно заполнена! Данные сформированы (см. консоль браузера).");
+        alert("Спасибо! / Thank you! / 谢谢! \nДанные сформированы (см. консоль).");
     });
 </script>
 
