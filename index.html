@@ -1,76 +1,126 @@
-<input type="hidden" name="train_id" id="train_id" value="944">
-
-    <div class="section">
-        <h3>Данные о поездке</h3>
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Анкета пассажира РЖД</title>
+    <style>
+        :root {
+            --rzd-red: #E21A1A;
+            --bg-color: #f0f2f5;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            background-color: var(--bg-color);
+            margin: 0;
+            padding: 0;
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+        }
+        .container {
+            width: 100%;
+            max-width: 600px;
+            background: #fff;
+            margin: 20px;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            position: relative;
+        }
+        header {
+            text-align: center;
+            border-bottom: 2px solid var(--rzd-red);
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+        }
+        h1 { font-size: 20px; color: var(--rzd-red); text-transform: uppercase; margin: 0; }
+        h3 { color: var(--rzd-red); margin-top: 0; }
         
-        <label>В каком типе вагона Вы совершаете поездку?</label>
-        <div class="option-group">
-            <label><input type="radio" name="wagon_type" value="Купе"> Купе</label>
-            <label><input type="radio" name="wagon_type" value="СВ"> СВ</label>
-        </div>
+        /* Стили для шагов (Скрываем все, кроме активного) */
+        .step { display: none; animation: fadeIn 0.5s; }
+        .step.active { display: block; }
 
-        <div style="display: flex; gap: 20px;">
-            <div style="flex:1;">
-                <label for="wagon_num">Номер вагона</label>
-                <input type="text" id="wagon_num" name="wagon_num" placeholder="Например: 05">
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Элементы формы */
+        label { display: block; margin-bottom: 8px; font-weight: bold; font-size: 14px; }
+        .option-group { margin-bottom: 20px; }
+        .option-group label { font-weight: normal; cursor: pointer; display: flex; align-items: center; margin-bottom: 8px; }
+        input[type="radio"], input[type="checkbox"] { margin-right: 10px; transform: scale(1.2); }
+        
+        input[type="text"], input[type="number"], select, textarea {
+            width: 100%; padding: 12px; margin-bottom: 15px;
+            border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; font-size: 16px;
+        }
+        textarea { height: 80px; resize: vertical; }
+
+        /* Таблицы */
+        .rating-row {
+            background: #f9f9f9;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 6px;
+        }
+        .rating-title { margin-bottom: 5px; font-weight: bold; font-size: 14px; }
+        .rating-options { display: flex; justify-content: space-between; }
+        .rating-options label { font-weight: normal; text-align: center; flex: 1; font-size: 12px; display: block; }
+        .rating-options input { display: block; margin: 0 auto 5px auto; }
+
+        /* Кнопки навигации */
+        .buttons { display: flex; justify-content: space-between; margin-top: 20px; gap: 10px; }
+        button {
+            flex: 1; padding: 14px; border: none; border-radius: 6px;
+            font-size: 16px; cursor: pointer; font-weight: bold;
+        }
+        .btn-next, .submit-btn { background-color: var(--rzd-red); color: white; }
+        .btn-prev { background-color: #ddd; color: #333; }
+        button:hover { opacity: 0.9; }
+
+        /* Индикатор прогресса */
+        .progress-bar { height: 4px; background: #eee; margin-bottom: 20px; border-radius: 2px; overflow: hidden; }
+        .progress-fill { height: 100%; background: var(--rzd-red); width: 0%; transition: width 0.3s; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="progress-bar"><div class="progress-fill" id="progress"></div></div>
+    
+    <header>
+        <h1>РЖД ТУР / ФПК</h1>
+    </header>
+
+    <form id="kareliaSurvey">
+        <input type="hidden" name="train_id" id="train_id" value="944">
+
+        <div class="step active" id="step1">
+            <h3>Шаг 1: Данные о поездке</h3>
+            <label>Тип вагона</label>
+            <div class="option-group">
+                <label><input type="radio" name="wagon_type" value="Купе" checked> Купе</label>
+                <label><input type="radio" name="wagon_type" value="СВ"> СВ</label>
             </div>
-            <div style="flex:1;">
-                <label for="place_num">Номер места</label>
-                <input type="text" id="place_num" name="place_num" placeholder="Например: 12">
+            
+            <div style="display: flex; gap: 15px;">
+                <div style="flex:1;">
+                    <label>Вагон</label>
+                    <input type="text" id="wagon_num" name="wagon_num" placeholder="№">
+                </div>
+                <div style="flex:1;">
+                    <label>Место</label>
+                    <input type="text" id="place_num" name="place_num" placeholder="№">
+                </div>
             </div>
-        </div>
-    </div>
-
-<script>
-    // 1. ФУНКЦИЯ АВТОЗАПОЛНЕНИЯ ПРИ ЗАГРУЗКЕ
-    window.addEventListener('DOMContentLoaded', () => {
-        // Получаем параметры из адресной строки (URL)
-        const params = new URLSearchParams(window.location.search);
-
-        // Попытка найти параметры 'wagon' (вагон), 'place' (место), 'train' (поезд)
-        // Названия параметров зависят от того, как их отдает "Попутчик". 
-        // Обычно это wagon_num, place_num или просто wagon, place.
-        
-        const wagon = params.get('wagon') || params.get('wagon_num');
-        const place = params.get('place') || params.get('place_num');
-        const train = params.get('train') || params.get('train_id');
-
-        // Если нашли — подставляем в поля
-        if (wagon) {
-            document.getElementById('wagon_num').value = wagon;
-            // Можно сделать поле неактивным, чтобы не исправляли, если это нужно:
-            // document.getElementById('wagon_num').readOnly = true; 
-        }
-
-        if (place) {
-            document.getElementById('place_num').value = place;
-        }
-
-        if (train) {
-            document.getElementById('train_id').value = train;
-        }
-    });
-
-    // 2. ОТПРАВКА ФОРМЫ (как и было раньше)
-    document.getElementById('kareliaSurvey').addEventListener('submit', function(e) {
-        e.preventDefault();
-        const formData = new FormData(this);
-        const data = {};
-        
-        formData.forEach((value, key) => {
-            if (data[key]) {
-                if (!Array.isArray(data[key])) {
-                    data[key] = [data[key]];
-                }
-                data[key].push(value);
-            } else {
-                data[key] = value;
-            }
-        });
-
-        data['date_filled'] = new Date().toISOString();
-
-        console.log("JSON для отправки:", JSON.stringify(data, null, 2));
-        alert("Данные собраны! В консоли (F12) виден JSON с заполненными номером вагона и места.");
-    });
-</script>
+            
+            <label>Откуда узнали о поезде?</label>
+            <select name="source">
+                <option value="">Выберите...</option>
+                <option value="Сайт РЖД">Сайт ОАО «РЖД»</option>
+                <option value="Соцсети">Соцсети</option>
+                <option value="Друзья">От друзей</option>
